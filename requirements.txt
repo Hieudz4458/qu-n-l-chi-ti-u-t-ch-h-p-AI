@@ -1,0 +1,14 @@
+Flask
+Flask-SQLAlchemy
+PyMySQL
+python-dotenv
+Flask-JWT-Extended
+Werkzeug
+email-validator
+scikit-learn
+pandas
+numpy
+openpyxl
+reportlab
+google-generativeai
+gunicorn
