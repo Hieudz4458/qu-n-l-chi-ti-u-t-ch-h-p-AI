@@ -1,6 +1,7 @@
 from flask import Flask, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
+from flask_jwt_extended import JWTManager
 import os
 from datetime import timedelta
 from flask_jwt_extended import (
@@ -14,28 +15,34 @@ def create_app():
     load_dotenv()
 
     app = Flask(
-        __name__, 
-        template_folder="views/templates", 
+        __name__,
+        template_folder="views/templates",
         static_folder="views/static"
     )
+
     app.secret_key = os.getenv("SECRET_KEY", "super-secret-key-12345")
 
     user = os.getenv("DB_USER")
     password = os.getenv("DB_PASSWORD")
     host = os.getenv("DB_HOST")
+    port = os.getenv("DB_PORT", "3306")
     dbname = os.getenv("DB_NAME")
 
     app.config["SQLALCHEMY_DATABASE_URI"] = (
-        f"mysql+pymysql://{user}:{password}@{host}/{dbname}"
+        f"mysql+pymysql://{user}:{password}@{host}:{port}/{dbname}"
     )
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    
-    # Cấu hình JWT
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "super-secret-jwt-key-12345")
-    app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
-    app.config["JWT_COOKIE_CSRF_PROTECT"] = False  # Tắt CSRF tạm thời để dễ test với Form HTML
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=2)
 
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Cấu hình JWT
+    app.config["JWT_SECRET_KEY"] = os.getenv(
+    "JWT_SECRET_KEY",
+    "super-secret-jwt-key-12345"
+)
+
+    app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = False
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=2)
     jwt = JWTManager(app)
 
     # Xử lý khi user chưa đăng nhập nhưng vào trang yêu cầu đăng nhập
